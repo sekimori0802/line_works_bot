@@ -36,16 +36,20 @@ LINE Works ChatGPTボット ローカル起動手順
 
 4. LINE Worksの設定
    a. LINE Works Developers Consoleで以下を設定:
-      - コールバックURL: http://localhost:4000/webhook
+      - コールバックURL: https://localhost:4000/webhook
         (注: 本番環境では、インターネットからアクセス可能なURLに変更する必要があります)
       - メッセージタイプ: テキストを有効化
+
+   b. HTTPSの設定:
+      - アプリケーションはHTTPSで動作します(自己署名証明書を使用)
+      - 初回アクセス時にブラウザで警告が表示されますが、開発環境では「詳細設定」から進むことができます
 
 5. アプリケーションの起動
    ```
    python app.py
    ```
    - サーバーがポート4000で起動します
-   - ヘルスチェック: http://localhost:4000/health にアクセスして動作確認
+   - ヘルスチェック: https://localhost:4000/health にアクセスして動作確認
 
 6. 動作確認
    - LINE Worksでボットにメッセージを送信
