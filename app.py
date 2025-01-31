@@ -115,15 +115,15 @@ def health_check():
     """ヘルスチェックエンドポイント"""
     return jsonify({'status': 'healthy'}), 200
 
-from pyngrok import ngrok
-
 if __name__ == '__main__':
     port = int(os.getenv('PORT', 4000))
+    cert_path = os.getenv('SSL_CERT_PATH')
+    key_path = os.getenv('SSL_KEY_PATH')
     
-    # ngrokトンネルを開始
-    public_url = ngrok.connect(port, bind_tls=True)
-    print(f' * Tunnel URL: {public_url}')
-    print(f' * Webhook URL: {public_url}/webhook')
-    print(' * LINE Works Developers ConsoleでWebhook URLを上記のURLに更新してください')
-    
-    app.run(host='0.0.0.0', port=port, debug=True)
+    if cert_path and key_path:
+        # 本番環境: SSL証明書を使用
+        ssl_context = (cert_path, key_path)
+        app.run(host='0.0.0.0', port=port, ssl_context=ssl_context)
+    else:
+        # 開発環境: 自己署名証明書を使用
+        app.run(host='0.0.0.0', port=port, ssl_context='adhoc')
