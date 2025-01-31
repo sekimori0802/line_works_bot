@@ -115,6 +115,15 @@ def health_check():
     """ヘルスチェックエンドポイント"""
     return jsonify({'status': 'healthy'}), 200
 
+from pyngrok import ngrok
+
 if __name__ == '__main__':
     port = int(os.getenv('PORT', 4000))
-    app.run(host='0.0.0.0', port=port, debug=True, ssl_context='adhoc')
+    
+    # ngrokトンネルを開始
+    public_url = ngrok.connect(port, bind_tls=True)
+    print(f' * Tunnel URL: {public_url}')
+    print(f' * Webhook URL: {public_url}/webhook')
+    print(' * LINE Works Developers ConsoleでWebhook URLを上記のURLに更新してください')
+    
+    app.run(host='0.0.0.0', port=port, debug=True)

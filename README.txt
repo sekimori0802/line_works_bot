@@ -44,12 +44,30 @@ LINE Works ChatGPTボット ローカル起動手順
       - アプリケーションはHTTPSで動作します(自己署名証明書を使用)
       - 初回アクセス時にブラウザで警告が表示されますが、開発環境では「詳細設定」から進むことができます
 
-5. アプリケーションの起動
-   ```
-   python app.py
-   ```
-   - サーバーがポート4000で起動します
-   - ヘルスチェック: https://localhost:4000/health にアクセスして動作確認
+5. ローカル環境でのテスト実行
+   a. ngrokのセットアップ
+      - ngrokのアカウントを作成: https://ngrok.com/
+      - アカウント作成後、認証トークンを取得
+      - 以下のコマンドで認証を設定:
+        ```
+        ngrok config add-authtoken your_auth_token
+        ```
+
+   b. アプリケーションの起動
+      ```
+      python app.py
+      ```
+      - サーバーがポート4000で起動します
+      - ngrokが自動的に起動し、公開用URLが表示されます
+      - 表示されたWebhook URLをコピーします(例: https://xxxx-xxx-xxx-xxx-xxx.ngrok.io/webhook)
+
+   c. LINE Works Developers Consoleの設定更新
+      - コールバックURLに、表示されたWebhook URLを設定
+      - [更新]ボタンをクリック
+
+   d. 動作確認
+      - ヘルスチェック: 表示されたngrok URLの/healthにアクセス
+      - LINE Worksアプリでボットにメッセージを送信してテスト
 
 6. 動作確認
    - LINE Worksでボットにメッセージを送信
