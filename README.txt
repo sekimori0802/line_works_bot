@@ -59,3 +59,40 @@ LINE Works ChatGPTボット ローカル起動手順
 - .envファイルは機密情報を含むため、Gitにコミットしないでください
 - ポート4000が他のアプリケーションで使用されている場合は、.envファイルでPORTを変更してください
 - ローカルでの開発・テスト用の手順です。本番環境へのデプロイは別途設定が必要です
+
+デプロイ手順:
+1. サーバー要件
+   - Python 3.11以上がインストールされているサーバー
+   - HTTPSに対応したWebサーバー(Nginx推奨)
+   - インターネットからアクセス可能な固定IPアドレスまたはドメイン
+
+2. デプロイ手順
+   a. サーバーにコードをクローン
+      ```
+      git clone https://github.com/sekimori0802/line_works_bot.git
+      cd line_works_bot
+      ```
+
+   b. 環境構築
+      ```
+      python -m venv venv
+      source venv/bin/activate  # Linuxの場合
+      pip install -r requirements.txt
+      ```
+
+   c. 環境変数の設定
+      - .env.exampleを.envにコピーして必要な値を設定
+      - コールバックURLを本番環境のURLに変更(例: https://your-domain.com/webhook)
+
+   d. Webサーバーの設定
+      - Nginxなどのリバースプロキシを設定
+      - SSL証明書の設定(Let's Encryptなど)
+
+   e. アプリケーションの起動
+      - systemdなどのサービス管理ツールを使用して自動起動を設定
+
+3. LINE Works設定の更新
+   - LINE Works Developers ConsoleでコールバックURLを本番環境のURLに更新
+   - Webhook URLの形式: https://your-domain.com/webhook
+
+本番環境では、必ずHTTPSを使用し、適切なセキュリティ対策を実施してください。
