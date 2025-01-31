@@ -81,10 +81,24 @@ LINE Works ChatGPTボット ローカル起動手順
 デプロイ手順:
 1. サーバー要件
    - Python 3.11以上がインストールされているサーバー
-   - HTTPSに対応したWebサーバー(Nginx推奨)
    - インターネットからアクセス可能な固定IPアドレスまたはドメイン
+   - SSL証明書(Let's Encryptなど)
 
-2. デプロイ手順
+2. SSL証明書の準備
+   a. Let's Encryptを使用する場合:
+      ```
+      # certbotのインストール
+      sudo apt-get update
+      sudo apt-get install certbot
+
+      # 証明書の取得
+      sudo certbot certonly --standalone -d your-domain.com
+      ```
+      証明書は以下の場所に保存されます:
+      - 証明書: /etc/letsencrypt/live/your-domain.com/fullchain.pem
+      - 秘密鍵: /etc/letsencrypt/live/your-domain.com/privkey.pem
+
+3. デプロイ手順
    a. サーバーにコードをクローン
       ```
       git clone https://github.com/sekimori0802/line_works_bot.git
@@ -99,18 +113,76 @@ LINE Works ChatGPTボット ローカル起動手順
       ```
 
    c. 環境変数の設定
-      - .env.exampleを.envにコピーして必要な値を設定
-      - コールバックURLを本番環境のURLに変更(例: https://your-domain.com/webhook)
+      ```
+      cp .env.example .env
+      vim .env
+      ```
+      以下の項目を設定:
+      - LINE Works API関連の設定
+      - OpenAI APIキー
+      - SSL証明書のパス
+        ```
+        SSL_CERT_PATH=/etc/letsencrypt/live/your-domain.com/fullchain.pem
+        SSL_KEY_PATH=/etc/letsencrypt/live/your-domain.com/privkey.pem
+        ```
 
-   d. Webサーバーの設定
-      - Nginxなどのリバースプロキシを設定
-      - SSL証明書の設定(Let's Encryptなど)
+   d. systemdサービスの設定
+      ```
+      sudo vim /etc/systemd/system/lineworks-bot.service
+      ```
+      以下の内容を追加:
+      ```
+      [Unit]
+      Description=LINE Works ChatGPT Bot
+      After=network.target
 
-   e. アプリケーションの起動
-      - systemdなどのサービス管理ツールを使用して自動起動を設定
+      [Service]
+      User=your-username
+      WorkingDirectory=/path/to/line_works_bot
+      Environment="PATH=/path/to/line_works_bot/venv/bin"
+      ExecStart=/path/to/line_works_bot/venv/bin/python app.py
+      Restart=always
 
-3. LINE Works設定の更新
-   - LINE Works Developers ConsoleでコールバックURLを本番環境のURLに更新
-   - Webhook URLの形式: https://your-domain.com/webhook
+      [Install]
+      WantedBy=multi-user.target
+      ```
 
-本番環境では、必ずHTTPSを使用し、適切なセキュリティ対策を実施してください。
+   e. サービスの起動
+      ```
+      sudo systemctl daemon-reload
+      sudo systemctl enable lineworks-bot
+      sudo systemctl start lineworks-bot
+      ```
+
+   f. ログの確認
+      ```
+      sudo journalctl -u lineworks-bot -f
+      ```
+
+4. LINE Works設定の更新
+   a. LINE Works Developers Consoleにアクセス
+   b. コールバックURLを更新: https://your-domain.com/webhook
+   c. [更新]ボタンをクリック
+
+5. 動作確認
+   a. ヘルスチェック
+      ```
+      curl https://your-domain.com/health
+      ```
+   b. LINE Worksアプリでボットにメッセージを送信してテスト
+
+トラブルシューティング:
+1. サービスが起動しない場合
+   - ログを確認: sudo journalctl -u lineworks-bot -f
+   - 権限の確認: SSL証明書と秘密鍵の読み取り権限
+   - パスの確認: .envファイルの設定が正しいか
+
+2. Webhookが動作しない場合
+   - ファイアウォールの確認: ポート443が開いているか
+   - SSL証明書の確認: 有効期限と設定
+   - URLの確認: LINE Works Developers Consoleの設定
+
+セキュリティに関する注意:
+- .envファイルのバックアップを安全な場所に保管
+- SSL証明書の定期的な更新を確認
+- システムの定期的なアップデートを実施
