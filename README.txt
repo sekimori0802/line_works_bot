@@ -36,7 +36,8 @@ LINE Works ChatGPTボット ローカル起動手順
 
 4. LINE Worksの設定
    a. LINE Works Developers Consoleで以下を設定:
-      - コールバックURL: https://script.google.com/macros/s/AKfycbxEqsfoJ7goq-lmvRyQaGDiW_y/exec
+      - コールバックURL: http://localhost:4000/webhook
+        (注: 本番環境では、インターネットからアクセス可能なURLに変更する必要があります)
       - メッセージタイプ: テキストを有効化
 
 5. アプリケーションの起動
